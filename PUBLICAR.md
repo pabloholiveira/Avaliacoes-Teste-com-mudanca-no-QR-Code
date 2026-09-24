@@ -1,7 +1,17 @@
-# Como publicar no GitHub Pages
+# Como publicar no GitHub Pages — cópia de TESTE do QR code
 
-Hospedagem gratuita, sem custo recorrente. A configuração abaixo é feita **uma
-vez**; depois, cada cliente novo é um `git push`.
+> **Esta é a pasta de teste, não a de produção.** Ela publica em um repositório
+> separado, e nada que for feito aqui chega ao site real nem às placas impressas.
+>
+> | | Teste (esta pasta) | Produção |
+> |---|---|---|
+> | Pasta | `~/Desktop/Landingpage_avl - Teste com alteração na função do QR Code` | `~/Desktop/Landingpage_avl` |
+> | Repositório | `pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code` | `pabloholiveira/Avaliacoes` |
+> | Site | `https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/` | `https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/` |
+> | Painel local | <http://localhost:8081/admin.html> | <http://localhost:8081/admin.html> |
+>
+> Antes de qualquer `git push`, confira com `git remote -v` que o destino é o
+> `Avaliacoes-Teste-com-mudanca-no-QR-Code`. **Não imprima placas para clientes reais a partir desta pasta.**
 
 Esta pasta já é um repositório git. Requisitos, todos já presentes nesta máquina:
 
@@ -13,60 +23,30 @@ Esta pasta já é um repositório git. Requisitos, todos já presentes nesta má
 
 ---
 
-## 1. Criar o repositório e publicar
+## 1. Repositório e GitHub Pages — já feito
 
-Na pasta do projeto:
-
-```bash
-cd ~/Desktop/Landingpage_avl
-gh repo create Avaliacoes --public --source=. --remote=origin --push
-```
-
-Isso cria o repositório no GitHub, liga esta pasta a ele e envia tudo, em um
-comando só.
-
-**Por que público:** o GitHub Pages em conta gratuita só serve repositórios
-públicos. Se a sua conta for Pro, `--private` também funciona.
-
-<details>
-<summary>Alternativa pelo navegador, sem o <code>gh</code></summary>
-
-1. Em <https://github.com/new>: nome `Avaliacoes`, **Public**, **sem** README.
-2. **Create repository**.
-3. De volta ao terminal:
-
-```bash
-git remote add origin https://github.com/pabloholiveira/Avaliacoes.git
-git push -u origin main
-```
-</details>
-
-## 2. Ligar o GitHub Pages
-
-```bash
-gh repo view --web
-```
-
-No repositório: **Settings** → **Pages** → *Source*: **Deploy from a branch** →
-branch **main**, pasta **/ (root)** → **Save**.
-
-Espere 1 a 2 minutos. A URL aparece no topo da mesma página:
+Em 24/09/2026 esta cópia foi desligada do repositório `Avaliacoes` e passou a
+publicar em um repositório próprio, com o GitHub Pages servindo a branch
+**main**, pasta **/ (root)**:
 
 ```
-https://pabloholiveira.github.io/Avaliacoes/
+https://github.com/pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code
+https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/
 ```
 
-> **Nunca renomeie o repositório depois de imprimir a primeira placa.** A URL do
+O repositório precisa continuar **público**: o GitHub Pages em conta gratuita
+não serve repositórios privados.
+
+> **Não renomeie o repositório depois de testar QRs no celular.** A URL do
 > Pages carrega o nome do repositório, maiúsculas inclusive, e o endereço antigo
-> passa a dar 404 na hora — sem redirecionamento. Todo QR já impresso morre
-> junto. (O rename de `avaliacoes` para `Avaliacoes` em 16/09/2026 fez
-> exatamente isso; só havia clientes de teste no ar.)
+> passa a dar 404 na hora — sem redirecionamento. (O rename de `avaliacoes`
+> para `Avaliacoes` em 16/09/2026 fez exatamente isso na produção.)
 
-## 3. Configurar o painel
+## 2. Configurar o painel
 
 1. Abra o `admin.html` (veja *Rodando o painel* mais abaixo).
 2. Clique na engrenagem (**Configurações gerais**).
-3. Cole a URL do passo 2 em **URL base da hospedagem** e salve.
+3. Cole `https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/` em **URL base da hospedagem** e salve.
 
 Pronto. O aviso âmbar some, os links passam a apontar para o endereço real e o
 botão **Baixar QR** é liberado.
@@ -81,14 +61,14 @@ botão **Baixar QR** é liberado.
 3. **No terminal:**
 
    ```bash
-   cd ~/Desktop/Landingpage_avl
+   cd ~/Desktop/"Landingpage_avl - Teste com alteração na função do QR Code"
    git add clientes/
    git commit -m "Adiciona cliente barbearia-do-ze"
    git push
    ```
 
 4. Esperar ~1 minuto e **abrir no navegador**
-   `https://pabloholiveira.github.io/Avaliacoes/?c=SLUG`.
+   `https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/?c=SLUG`.
 5. Só então **Baixar QR** e mandar a placa para impressão.
 
 **Nunca imprima uma placa antes de conferir o link no navegador.** A placa é
@@ -118,19 +98,19 @@ git log origin/main..main   # commits feitos mas não enviados
 Na máquina do parceiro, uma vez:
 
 ```bash
-git clone https://github.com/pabloholiveira/Avaliacoes.git
-cd Avaliacoes
-python3 -m http.server 8080
+git clone https://github.com/pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code.git
+cd Avaliacoes-Teste-com-mudanca-no-QR-Code
+python3 -m http.server 8081
 ```
 
-Depois, <http://localhost:8080/admin.html> — e a **URL base da hospedagem**
+Depois, <http://localhost:8081/admin.html> — e a **URL base da hospedagem**
 precisa ser configurada ali também, na engrenagem: ela vive no navegador de cada
 um, não no repositório.
 
 Para poder dar `git push`, ele precisa ser colaborador do repositório:
 
 ```bash
-gh api -X PUT repos/pabloholiveira/Avaliacoes/collaborators/USUARIO-DELE
+gh api -X PUT repos/pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code/collaborators/USUARIO-DELE
 ```
 
 Sem isso ele clona e edita, mas não envia — teria que mandar o arquivo por fora.
@@ -144,7 +124,7 @@ divertido. Combinem de mexer no painel um de cada vez.
 ## Duas coisas que você precisa saber
 
 **Os arquivos em `clientes/` são públicos.** Qualquer pessoa pode abrir
-`https://pabloholiveira.github.io/Avaliacoes/clientes/barbearia-do-ze.json` e ler
+`https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/clientes/barbearia-do-ze.json` e ler
 o WhatsApp do cliente. Isso é inerente ao modelo sem backend: a landing precisa
 buscar esse arquivo no navegador do visitante. Na prática é o mesmo número que o
 negócio já divulga na fachada e no Google — mas é bom você saber antes de
@@ -152,7 +132,7 @@ prometer confidencialidade a alguém.
 
 **O `admin.html` está no repositório, mas não no site.** Ele é versionado — é
 assim que mais de uma pessoa trabalha no painel — e o `_config.yml` o mantém
-fora do build do Pages, então `…github.io/Avaliacoes/admin.html` responde 404.
+fora do build do Pages, então `…github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/admin.html` responde 404.
 O painel roda local, por `python3 -m http.server`, em cada máquina.
 
 Como o repositório é público, o código do painel é legível por quem abrir o
@@ -170,11 +150,17 @@ duas listas independentes — para passar clientes de uma máquina para outra, u
 ## Rodando o painel localmente
 
 ```bash
-cd ~/Desktop/Landingpage_avl
-python3 -m http.server 8080
+cd ~/Desktop/"Landingpage_avl - Teste com alteração na função do QR Code"
+python3 -m http.server 8081
 ```
 
-Depois abra <http://localhost:8080/admin.html>. Para encerrar, `Ctrl+C`.
+Depois abra <http://localhost:8081/admin.html>. Para encerrar, `Ctrl+C`.
+
+**Use a porta 8081 aqui, não a 8080.** A carteira de clientes e a URL base
+ficam no `localStorage` do navegador, que é separado por endereço. Se as duas
+pastas rodarem em `localhost:8080`, o painel de teste e o de produção passam a
+ler e gravar os mesmos dados: a URL base de teste pode ir parar no painel de
+produção e sair impressa numa placa real.
 
 Precisa ser por servidor, não abrindo o arquivo direto: a landing usa `fetch`
 para ler `clientes/*.json`, e o protocolo `file://` bloqueia isso.

@@ -3,7 +3,7 @@
 # `exclude` lista arquivos que ficam no repositório mas NÃO são copiados para o
 # site publicado. O admin.html precisa estar versionado — é como o parceiro
 # clona e edita o painel — mas não deve responder em
-# https://pabloholiveira.github.io/avaliacoes/admin.html, senão qualquer um que
+# https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/admin.html, senão qualquer um que
 # descubra o endereço abre o gerador no navegador.
 #
 # Isto não é segredo: o repositório é público, então o código do painel continua

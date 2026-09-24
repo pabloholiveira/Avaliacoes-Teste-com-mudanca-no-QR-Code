@@ -5,7 +5,7 @@ Instalação:
     pip install "qrcode[pil]"
 
 Uso:
-    python gerar_qrcode.py https://seuusuario.github.io/avaliacoes/
+    python gerar_qrcode.py https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/
 
 Se a URL base for omitida, usa BASE_PADRAO abaixo.
 Os PNGs saem em qrcodes/qr-<slug>.png
@@ -18,7 +18,7 @@ from pathlib import Path
 import qrcode
 from qrcode.constants import ERROR_CORRECT_Q
 
-BASE_PADRAO = "https://seuusuario.github.io/avaliacoes/"
+BASE_PADRAO = "https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/"
 
 PASTA_CLIENTES = Path("clientes")
 PASTA_SAIDA = Path("qrcodes")
