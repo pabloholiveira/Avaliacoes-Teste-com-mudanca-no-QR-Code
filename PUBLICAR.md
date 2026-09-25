@@ -95,7 +95,8 @@ railway ssh --service app npm run criar-usuario
 ```
 
 O comando roda dentro do servidor da Railway — o banco não tem endereço
-público, de propósito. O script pergunta usuário e senha no terminal (a senha não aparece enquanto
+público, de propósito. O `railway ssh` exige uma chave SSH no computador
+(`ssh-keygen -t ed25519`, uma vez só). O script pergunta usuário e senha no terminal (a senha não aparece enquanto
 digita). Não existe tela de cadastro no painel, de propósito.
 
 O login vale 30 dias em cada aparelho. Se um celular for perdido: troque a
