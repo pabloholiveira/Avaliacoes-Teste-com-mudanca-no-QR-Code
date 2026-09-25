@@ -1,14 +1,16 @@
+# Dependências
+node_modules/
+
+# Variáveis de ambiente locais (senhas, JWT_SECRET)
+.env
+
+# Backups exportados pelo painel (contêm todos os clientes)
+backup-*.json
+lote-*.zip
+
 # Backups automáticos do editor
 *.bak.*
 
-# QR codes gerados — são derivados dos JSONs, não precisam ir pro repositório
-qrcodes/
-
-# Backups da carteira exportados pelo painel (contêm todos os seus clientes)
-carteira-*.json
-
 # Ambiente local
 .vscode/
-__pycache__/
-*.pyc
 .DS_Store

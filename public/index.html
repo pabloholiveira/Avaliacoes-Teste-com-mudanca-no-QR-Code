@@ -198,8 +198,8 @@
 </head>
 <body>
 
-<!-- Config padrão: usada quando a página abre sem ?c=<slug>,
-     ou quando o arquivo do cliente não é encontrado. -->
+<!-- Config da demonstração: usada só quando a página abre sem ?p= nem ?c=.
+     Nunca como reserva de um cliente que não carregou. -->
 <script id="config" type="application/json">
 {
   "businessName": "Barbearia Exemplo",
@@ -247,14 +247,14 @@
     <p class="footer-note">Sua avaliação ajuda pequenos negócios como este a crescer 💚</p>
   </div>
 
-  <!-- Mostrado no lugar do card quando o ?c=<slug> não existe. Nunca cair na
-       config padrão aqui: ela traz o nome e o WhatsApp de um negócio fictício,
-       e o visitante não teria como perceber que está na página errada. -->
+  <!-- Mostrado no lugar do card quando a placa ou o cliente não existe. Nunca
+       cair na config padrão aqui: ela traz o nome e o WhatsApp de um negócio
+       fictício, e o visitante não teria como perceber que está na página errada. -->
   <div class="card erro" id="erro" hidden>
     <p class="mark" aria-hidden="true">!</p>
-    <h1>Página não encontrada</h1>
-    <p>Este QR code aponta para um negócio que ainda não foi publicado ou que saiu do ar.</p>
-    <p class="small">Se você escaneou o código no balcão, avise o estabelecimento.</p>
+    <h1 id="erroTitulo">Página não encontrada</h1>
+    <p id="erroTexto">Este QR code aponta para um negócio que ainda não foi publicado ou que saiu do ar.</p>
+    <p class="small" id="erroDica">Se você escaneou o código no balcão, avise o estabelecimento.</p>
   </div>
 </main>
 
@@ -323,8 +323,31 @@
     document.documentElement.style.setProperty('--accent', corSegura(cfg.accentColor));
   }
 
-  function mostrarErro() {
-    document.title = "Página não encontrada";
+  const MENSAGENS = {
+    naoEncontrada: {
+      titulo: 'Página não encontrada',
+      texto: 'Este QR code aponta para um negócio que ainda não foi publicado ou que saiu do ar.',
+      dica: 'Se você escaneou o código no balcão, avise o estabelecimento.'
+    },
+    // Placa impressa e entregue, mas ainda não vinculada a um cliente no painel.
+    naoAtivada: {
+      titulo: 'Placa ainda não ativada',
+      texto: 'Esta placa ainda está sendo configurada e logo vai funcionar.',
+      dica: 'Tente de novo em alguns minutos ou avise o estabelecimento.'
+    },
+    semConexao: {
+      titulo: 'Não foi possível carregar',
+      texto: 'Verifique sua conexão com a internet e tente de novo.',
+      dica: ''
+    }
+  };
+
+  function mostrarErro(tipo) {
+    const m = MENSAGENS[tipo] || MENSAGENS.naoEncontrada;
+    document.getElementById('erroTitulo').textContent = m.titulo;
+    document.getElementById('erroTexto').textContent = m.texto;
+    document.getElementById('erroDica').textContent = m.dica;
+    document.title = m.titulo;
     el.card.hidden = true;
     el.erro.hidden = false;
     document.body.style.visibility = '';   // destrava se a página entrou em preview
@@ -369,27 +392,40 @@
     });
   }
 
-  // Carrega o cliente indicado em ?c=<slug> a partir de clientes/<slug>.json.
-  // Sem ?c= a página é a demonstração; com um ?c= que não resolve ela é um erro
-  // — um QR com slug errado precisa parecer quebrado, não parecer outro negócio.
-  const slug = params.get('c');
-  if (slug === null) {
-    apply(DEFAULT_CFG);
-  } else if (!/^[a-z0-9-]{1,60}$/.test(slug)) {
-    mostrarErro();
-  } else {
+  // ?p=<código> é o QR da placa: o servidor diz a qual cliente ela pertence.
+  // ?c=<slug> abre um cliente direto (testes, sem placa).
+  // Sem nenhum dos dois, a página é a demonstração. Com um que não resolve,
+  // é um erro — um QR errado precisa parecer quebrado, não parecer outro negócio.
+  function carregar(url) {
     // Esconde o card durante o fetch: o esqueleto vazio pisca menos que
     // um nome de negócio que vai ser trocado no instante seguinte.
     el.card.hidden = true;
-    fetch('clientes/' + slug + '.json')
-      .then(r => r.ok ? r.json() : Promise.reject(new Error(r.status)))
-      .then(dados => {
-        if (!dados || typeof dados !== 'object' || Array.isArray(dados)) {
-          throw new Error('formato');
-        }
+    fetch(url, { cache: 'no-store' })
+      .then(r => {
+        if (r.status === 404) return Promise.reject('naoEncontrada');
+        if (!r.ok) return Promise.reject('semConexao');
+        return r.json();
+      })
+      .then(resp => {
+        if (resp.estado === 'livre') return mostrarErro('naoAtivada');
+        const dados = resp.cliente;
+        if (!dados || typeof dados !== 'object' || Array.isArray(dados)) throw 'naoEncontrada';
         apply(dados);
       })
-      .catch(mostrarErro);
+      .catch(tipo => mostrarErro(typeof tipo === 'string' ? tipo : 'semConexao'));
+  }
+
+  const placa = params.get('p');
+  const slug = params.get('c');
+  if (placa !== null) {
+    const codigo = placa.trim().toUpperCase();
+    if (/^[23456789ABCDEFGHJKMNPQRSTUVWXYZ]{6}$/.test(codigo)) carregar('/api/publico/placa/' + codigo);
+    else mostrarErro('naoEncontrada');
+  } else if (slug !== null) {
+    if (/^[a-z0-9-]{1,60}$/.test(slug)) carregar('/api/publico/cliente/' + slug);
+    else mostrarErro('naoEncontrada');
+  } else {
+    apply(DEFAULT_CFG);
   }
 })();
 </script>

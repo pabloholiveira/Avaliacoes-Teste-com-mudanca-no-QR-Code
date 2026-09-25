@@ -1,190 +1,142 @@
-# Como publicar no GitHub Pages — cópia de TESTE do QR code
+# Sistema de avaliações com placas — cópia de TESTE (Railway)
 
-> **Esta é a pasta de teste, não a de produção.** Ela publica em um repositório
-> separado, e nada que for feito aqui chega ao site real nem às placas impressas.
->
-> | | Teste (esta pasta) | Produção |
-> |---|---|---|
-> | Pasta | `~/Desktop/Landingpage_avl - Teste com alteração na função do QR Code` | `~/Desktop/Landingpage_avl` |
-> | Repositório | `pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code` | `pabloholiveira/Avaliacoes` |
-> | Site | `https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/` | `https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/` |
-> | Painel local | <http://localhost:8081/admin.html> | <http://localhost:8081/admin.html> |
->
-> Antes de qualquer `git push`, confira com `git remote -v` que o destino é o
-> `Avaliacoes-Teste-com-mudanca-no-QR-Code`. **Não imprima placas para clientes reais a partir desta pasta.**
+> **Esta é a pasta de teste, não a de produção.** Ela publica num repositório e
+> num projeto da Railway separados; nada daqui chega ao site real
+> (`pabloholiveira/Avaliacoes`, GitHub Pages) nem às placas já impressas.
+> **Não imprima placas para clientes reais a partir daqui.**
 
-Esta pasta já é um repositório git. Requisitos, todos já presentes nesta máquina:
-
-| Ferramenta | Verificar com | Situação |
+| | Teste (esta pasta) | Produção |
 |---|---|---|
-| git | `git --version` | 2.54.0 (Xcode Command Line Tools) |
-| GitHub CLI | `gh auth status` | autenticado como `pabloholiveira` |
-| Python 3 | `python3 --version` | usado para rodar o painel local |
+| Pasta | `~/Desktop/Landingpage_avl - Teste com alteração na função do QR Code` | `~/Desktop/Landingpage_avl` |
+| Repositório | `pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code` | `pabloholiveira/Avaliacoes` |
+| Hospedagem | Railway, projeto `avaliacoes-teste` | GitHub Pages |
 
 ---
 
-## 1. Repositório e GitHub Pages — já feito
+## Como funciona
 
-Em 24/09/2026 esta cópia foi desligada do repositório `Avaliacoes` e passou a
-publicar em um repositório próprio, com o GitHub Pages servindo a branch
-**main**, pasta **/ (root)**:
+Um servidor Express com Postgres, os dois na Railway, no mesmo endereço:
 
-```
-https://github.com/pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code
-https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/
-```
+| Endereço | O quê |
+|---|---|
+| `/?p=K7M2QX` | O que o QR da placa abre. Mostra a página do cliente, "Placa ainda não ativada" ou "Página não encontrada". |
+| `/?c=slug` | Página de um cliente sem placa, para conferir. Nunca vai em placa. |
+| `/admin/` | Painel, com login. Funciona no celular. |
+| `/api/...` | O que a landing e o painel consultam. |
 
-O repositório precisa continuar **público**: o GitHub Pages em conta gratuita
-não serve repositórios privados.
+Clientes, lotes e placas ficam **no banco**, não em arquivos. Salvar ou vincular
+no painel vale na hora para todo mundo — sem baixar JSON, sem `git push`.
 
-> **Não renomeie o repositório depois de testar QRs no celular.** A URL do
-> Pages carrega o nome do repositório, maiúsculas inclusive, e o endereço antigo
-> passa a dar 404 na hora — sem redirecionamento. (O rename de `avaliacoes`
-> para `Avaliacoes` em 16/09/2026 fez exatamente isso na produção.)
+### Os três estados da placa
 
-## 2. Configurar o painel
+| Estado | Quando | O QR mostra |
+|---|---|---|
+| **Livre** | Recém-gerada, ou devolvida às nossas mãos | "Placa ainda não ativada" |
+| **Ativa** | Vinculada a um cliente | A página do cliente |
+| **Inativa** | O cliente saiu (excluído ou desvinculada com "Desativar") | "Página não encontrada" |
 
-1. Abra o `admin.html` (veja *Rodando o painel* mais abaixo).
-2. Clique na engrenagem (**Configurações gerais**).
-3. Cole `https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/` em **URL base da hospedagem** e salve.
-
-Pronto. O aviso âmbar some, os links passam a apontar para o endereço real e o
-botão **Baixar QR** é liberado.
-
----
-
-## Rotina para cada cliente novo
-
-1. **No painel:** preencher os dados → **Salvar alterações** → **Baixar JSON**.
-2. **No Finder:** mover o arquivo baixado de `~/Downloads` para a pasta
-   `clientes/` do projeto.
-3. **No terminal:**
-
-   ```bash
-   cd ~/Desktop/"Landingpage_avl - Teste com alteração na função do QR Code"
-   git add clientes/
-   git commit -m "Adiciona cliente barbearia-do-ze"
-   git push
-   ```
-
-4. Esperar ~1 minuto e **abrir no navegador**
-   `https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/?c=SLUG`.
-5. Só então **Baixar QR** e mandar a placa para impressão.
-
-**Nunca imprima uma placa antes de conferir o link no navegador.** A placa é
-física; o arquivo é de graça.
-
-O passo 4 é rápido de checar: se o slug não estiver publicado, a página mostra
-**"Página não encontrada"** em letras grandes. Ela nunca finge ser outro
-negócio — foi feita assim justamente para esse erro não chegar impresso.
-
-### Publicando vários clientes de uma vez
-
-```bash
-git add clientes/ && git commit -m "Adiciona 3 clientes" && git push
-```
-
-### Ver o que ainda não foi publicado
-
-```bash
-git status --short          # arquivos alterados ou novos
-git log origin/main..main   # commits feitos mas não enviados
-```
+Uma placa inativa **não pode** ser vinculada a outro cliente: ela pode ainda
+estar pendurada na loja do anterior, e quem escaneasse lá cairia na página de
+outro negócio. Ela só volta a livre por **Liberar placa…**, na aba Placas,
+quando a placa física estiver com vocês.
 
 ---
 
-## Trabalhando em duas máquinas
+## Rotina
 
-Na máquina do parceiro, uma vez:
+**Imprimir um lote** — aba **Placas** → quantidade → **Gerar lote** →
+**Baixar QRs do lote (.zip)**. Cada PNG tem o QR (1024px, correção nível Q) e o
+código escrito embaixo. O zip traz também um `placas.csv`.
 
-```bash
-git clone https://github.com/pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code.git
-cd Avaliacoes-Teste-com-mudanca-no-QR-Code
-python3 -m http.server 8081
-```
+**Ativar uma placa num cliente** — aba **Clientes** → abrir (ou criar e salvar)
+o cliente → **Ler QR da placa** → apontar a câmera do celular para a placa →
+**Vincular**. Sem câmera: **Ler de uma foto**, ou digitar o código de 6
+caracteres escrito embaixo do QR.
 
-Depois, <http://localhost:8081/admin.html> — e a **URL base da hospedagem**
-precisa ser configurada ali também, na engrenagem: ela vive no navegador de cada
-um, não no repositório.
-
-Para poder dar `git push`, ele precisa ser colaborador do repositório:
-
-```bash
-gh api -X PUT repos/pabloholiveira/Avaliacoes-Teste-com-mudanca-no-QR-Code/collaborators/USUARIO-DELE
-```
-
-Sem isso ele clona e edita, mas não envia — teria que mandar o arquivo por fora.
-
-**Antes de começar a editar, sempre `git pull`.** Dois `admin.html` editados em
-paralelo dão conflito num arquivo de 1889 linhas, e resolver isso à mão não é
-divertido. Combinem de mexer no painel um de cada vez.
+**Cliente saiu** — no cliente, o **×** na placa → **Desativar** (a placa ficou
+na loja) ou **Voltar para livre** (a placa voltou para vocês).
 
 ---
 
-## Duas coisas que você precisa saber
+## Antes do primeiro lote de verdade
 
-**Os arquivos em `clientes/` são públicos.** Qualquer pessoa pode abrir
-`https://pabloholiveira.github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/clientes/barbearia-do-ze.json` e ler
-o WhatsApp do cliente. Isso é inerente ao modelo sem backend: a landing precisa
-buscar esse arquivo no navegador do visitante. Na prática é o mesmo número que o
-negócio já divulga na fachada e no Google — mas é bom você saber antes de
-prometer confidencialidade a alguém.
-
-**O `admin.html` está no repositório, mas não no site.** Ele é versionado — é
-assim que mais de uma pessoa trabalha no painel — e o `_config.yml` o mantém
-fora do build do Pages, então `…github.io/Avaliacoes-Teste-com-mudanca-no-QR-Code/admin.html` responde 404.
-O painel roda local, por `python3 -m http.server`, em cada máquina.
-
-Como o repositório é público, o código do painel é legível por quem abrir o
-GitHub. O que a exclusão evita é ele ficar *funcionando* como página no ar, à
-mão de qualquer um que descubra o endereço. Se um dia isso deixar de importar,
-apague a linha `admin.html` do `_config.yml`.
-
-**A carteira de clientes não é compartilhada pelo git.** Ela vive no
-`localStorage` do navegador de cada um. Duas pessoas com o mesmo repositório têm
-duas listas independentes — para passar clientes de uma máquina para outra, use
-**Exportar clientes** de um lado e **Importar backup** do outro.
+1. **Domínio próprio.** O endereço que vai dentro do QR fica gravado na placa
+   para sempre. Registre um domínio (ex.: registro.br), aponte para a Railway
+   (Settings do serviço → Networking → Custom Domain) e ponha em
+   `URL_PUBLICA`.
+2. **`QR_DEFINITIVO=true`.** Enquanto não estiver, todo PNG sai com a faixa
+   vermelha **"TESTE — NÃO IMPRIMIR"**.
+3. Isto sai da cópia de teste: a versão aprovada vai para o repositório e o
+   projeto de produção.
 
 ---
 
-## Rodando o painel localmente
+## Variáveis na Railway (serviço `app`)
+
+| Variável | Valor |
+|---|---|
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (referência; sobrevive a troca de senha do banco) |
+| `DATABASE_PUBLIC_URL` | `${{Postgres.DATABASE_PUBLIC_URL}}` — só para os scripts rodados do seu computador |
+| `JWT_SECRET` | Texto aleatório longo. **Trocar derruba todos os logins na hora.** |
+| `URL_PUBLICA` | Endereço dentro do QR, sem barra no fim |
+| `QR_DEFINITIVO` | `false` até o domínio definitivo |
+
+O banco é criado/atualizado sozinho a cada início do servidor (`server/schema.sql`).
+
+---
+
+## Login
+
+É um login só, compartilhado por você e pelo Henrique. Criar, ou trocar a
+senha dele, do seu computador:
 
 ```bash
 cd ~/Desktop/"Landingpage_avl - Teste com alteração na função do QR Code"
-python3 -m http.server 8081
+railway run --service app npm run criar-usuario
 ```
 
-Depois abra <http://localhost:8081/admin.html>. Para encerrar, `Ctrl+C`.
+O script pergunta usuário e senha no terminal (a senha não aparece enquanto
+digita). Não existe tela de cadastro no painel, de propósito.
 
-**Use a porta 8081 aqui, não a 8080.** A carteira de clientes e a URL base
-ficam no `localStorage` do navegador, que é separado por endereço. Se as duas
-pastas rodarem em `localhost:8080`, o painel de teste e o de produção passam a
-ler e gravar os mesmos dados: a URL base de teste pode ir parar no painel de
-produção e sair impressa numa placa real.
+O login vale 30 dias em cada aparelho. Se um celular for perdido: troque a
+senha com o mesmo comando **e** troque o `JWT_SECRET` na Railway — só a troca
+do segredo derruba na hora quem já estava logado.
 
-Precisa ser por servidor, não abrindo o arquivo direto: a landing usa `fetch`
-para ler `clientes/*.json`, e o protocolo `file://` bloqueia isso.
+Como o login é compartilhado, o sistema não sabe *quem* de vocês fez cada
+alteração.
 
 ---
 
+## Publicar mudanças no código
+
+A Railway está ligada ao GitHub: **`git push` na `main` publica sozinho**,
+em 1–2 minutos. Acompanhe em `railway logs --service app` ou no painel da Railway.
+
+## Rodar local
+
+Requer o Postgres local (`brew services start postgresql@16`).
+
+```bash
+cd ~/Desktop/"Landingpage_avl - Teste com alteração na função do QR Code"
+createdb avaliacoes_teste          # só na primeira vez
+cp .env.example .env               # só na primeira vez; preencha o JWT_SECRET
+npm install
+npm run criar-usuario              # login local, separado do da Railway
+npm run dev
+```
+
+Painel em <http://localhost:8081/admin/>. Com `URL_PUBLICA` vazio o endereço é
+local, e o painel **bloqueia** o download de QRs — de propósito.
+
 ## Backup
 
-São duas coisas diferentes, e só uma delas o git protege:
+**Configurações (engrenagem) → Exportar tudo** baixa clientes, lotes e placas
+num JSON. Guarde fora da Railway de tempos em tempos; o arquivo já está no
+`.gitignore` e não deve ir para o GitHub.
 
-| O quê | Onde vive | Protegido por |
-|---|---|---|
-| Landing, painel e JSONs dos clientes | nesta pasta | **git** — `git push` |
-| Carteira do painel | `localStorage` do navegador | **só o export manual** |
+## O que é público
 
-A carteira é a lista que aparece na barra lateral do painel. Limpar os dados do
-navegador ou trocar de máquina **apaga tudo** — e o git não vê nada disso.
-
-Em **Configurações gerais → Backup da carteira**:
-
-- **Exportar clientes** baixa `carteira-AAAA-MM-DD.json` com todos eles.
-- **Importar backup** restaura o arquivo, mesclando com o que já existe
-  (mostra quantos serão criados e quantos substituídos antes de confirmar).
-
-Exporte depois de cadastrar cada cliente novo. O arquivo de backup **não** deve
-ir para o GitHub — já está no `.gitignore`, junto com `qrcodes/`, os `*.bak.*` e
-o `.DS_Store`.
+A landing só recebe os dados de **um** cliente por vez, pelo código da placa ou
+pelo slug — nada de listas. Os códigos não seguem sequência e têm 887 milhões de
+combinações; a API ainda limita as consultas por IP. O WhatsApp do cliente
+aparece na página dele, como já aparece na fachada e no Google.
