@@ -3,11 +3,10 @@
 // nunca sobrescrito.
 //
 // Local:    npm run importar-clientes
-// Railway:  railway run --service app npm run importar-clientes
+// Railway:  railway ssh --service app npm run importar-clientes
 import { readdir, readFile } from 'node:fs/promises'
 import { validarCliente } from '../server/validacao.js'
 
-if (process.env.DATABASE_PUBLIC_URL) process.env.DATABASE_URL = process.env.DATABASE_PUBLIC_URL
 const { pool, migrar } = await import('../server/db.js')
 
 const pasta = new URL('../clientes/', import.meta.url)

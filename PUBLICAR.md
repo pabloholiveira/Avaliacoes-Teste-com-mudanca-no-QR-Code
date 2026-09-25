@@ -76,7 +76,6 @@ na loja) ou **Voltar para livre** (a placa voltou para vocês).
 | Variável | Valor |
 |---|---|
 | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (referência; sobrevive a troca de senha do banco) |
-| `DATABASE_PUBLIC_URL` | `${{Postgres.DATABASE_PUBLIC_URL}}` — só para os scripts rodados do seu computador |
 | `JWT_SECRET` | Texto aleatório longo. **Trocar derruba todos os logins na hora.** |
 | `URL_PUBLICA` | Endereço dentro do QR, sem barra no fim |
 | `QR_DEFINITIVO` | `false` até o domínio definitivo |
@@ -92,10 +91,11 @@ senha dele, do seu computador:
 
 ```bash
 cd ~/Desktop/"Landingpage_avl - Teste com alteração na função do QR Code"
-railway run --service app npm run criar-usuario
+railway ssh --service app npm run criar-usuario
 ```
 
-O script pergunta usuário e senha no terminal (a senha não aparece enquanto
+O comando roda dentro do servidor da Railway — o banco não tem endereço
+público, de propósito. O script pergunta usuário e senha no terminal (a senha não aparece enquanto
 digita). Não existe tela de cadastro no painel, de propósito.
 
 O login vale 30 dias em cada aparelho. Se um celular for perdido: troque a

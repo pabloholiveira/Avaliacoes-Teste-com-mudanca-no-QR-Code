@@ -1,16 +1,15 @@
 // Cria um login do painel, ou troca a senha de um que já existe.
 //
 // Local:    npm run criar-usuario
-// Railway:  railway run --service app npm run criar-usuario
+// Railway:  railway ssh --service app npm run criar-usuario
 //
 // Pergunta usuário e senha no terminal (a senha não aparece enquanto digita)
 // e grava só o hash. Não existe tela de cadastro no painel de propósito.
 import readline from 'node:readline'
 import bcrypt from 'bcryptjs'
 
-// `railway run` injeta o endereço INTERNO do banco, que só existe dentro da
-// Railway. Do seu computador, só o público funciona.
-if (process.env.DATABASE_PUBLIC_URL) process.env.DATABASE_URL = process.env.DATABASE_PUBLIC_URL
+// Na Railway roda DENTRO do servidor (railway ssh): o banco não tem endereço
+// público, de propósito, e só é alcançável de lá.
 const { pool, migrar } = await import('../server/db.js')
 
 function perguntar(texto, oculto = false) {
